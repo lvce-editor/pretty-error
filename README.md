@@ -17,3 +17,7 @@ const error = new TypeError(`x is not a function`)
 
 const prettyError = PrettyError.prepare(error)
 ```
+
+## Gitpod
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/lvce-editor/pretty-error)
