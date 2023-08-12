@@ -1,0 +1,38 @@
+{
+  "name": "@lvce-editor/pretty-error",
+  "version": "0.0.0-dev",
+  "description": "Create user friendly error messages and code frames for errors",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
+    "test:watch": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch"
+  },
+  "keywords": [
+    "pretty",
+    "error"
+  ],
+  "author": "Lvce Editor",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/code-frame": "^7.22.10",
+    "lines-and-columns": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.4.10",
+    "jest": "^29.6.2",
+    "prettier": "^3.0.1",
+    "typescript": "^5.1.6"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/test/*.test.js"
+    ],
+    "modulePathIgnorePatterns": ["<rootDir>/dist/"]
+  }
+}
