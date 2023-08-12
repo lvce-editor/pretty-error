@@ -67,7 +67,7 @@ const getVersion = async () => {
 
 const version = await getVersion()
 
-delete packageJson.script
+delete packageJson.scripts
 delete packageJson.devDependencies
 delete packageJson.prettier
 delete packageJson.jest
