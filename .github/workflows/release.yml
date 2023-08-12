@@ -37,6 +37,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
       - uses: actions/cache@v3
         id: npm-cache
         with:
@@ -48,3 +49,8 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
       - run: npm test
       - run: node scripts/build.js
+      - run: npm publish --access public
+        if: matrix.os == 'ubuntu-22.04'
+        working-directory: ./dist
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
