@@ -60,6 +60,8 @@ const getVersion = async () => {
 await rm(dist, { recursive: true, force: true })
 await mkdir(dist, { recursive: true })
 
+await execa(`npx`, ['rollup', '-c'])
+
 const version = await getVersion()
 
 const packageJson = await readJson(join(root, 'package.json'))
@@ -69,10 +71,12 @@ delete packageJson.devDependencies
 delete packageJson.prettier
 delete packageJson.jest
 packageJson.version = version
+packageJson.main = 'dist/index.js'
+packageJson.types = 'dist/index.d.ts'
 
 await writeJson(join(dist, 'package.json'), packageJson)
 
-await cp(join(root, 'src'), join(dist, 'src'), {
+await cp(join(root, 'src', 'index.d.ts'), join(dist, 'dist', 'index.d.ts'), {
   recursive: true,
 })
 
