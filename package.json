@@ -15,11 +15,12 @@
   ],
   "author": "Lvce Editor",
   "license": "MIT",
-  "dependencies": {
-    "@babel/code-frame": "^7.23.5",
-    "lines-and-columns": "^2.0.4"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@babel/code-frame": "^7.23.5",
+    "lines-and-columns": "^2.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/babel__code-frame": "^7.0.6",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.8.3",
