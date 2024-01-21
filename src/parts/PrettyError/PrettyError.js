@@ -65,7 +65,7 @@ export const prepare = (error) => {
       return prepareModuleNotFoundError(error)
     }
     const { message } = error
-    if (error && error.cause) {
+    if (error && error.cause && typeof error.cause === 'function') {
       const cause = error.cause()
       if (cause) {
         error = cause

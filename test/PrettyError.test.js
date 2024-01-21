@@ -772,3 +772,47 @@ export const disposeAll = () => {
     type: 'VError',
   })
 })
+
+test('prepare - fetch error', async () => {
+  const cause = new Error(`connect ECONNREFUSED 127.0.0.1:9229`)
+  cause.stack = `Error: connect ECONNREFUSED 127.0.0.1:9229
+    at __node_internal_captureLargerStackTrace (node:internal/errors:496:5)
+    at __node_internal_exceptionWithHostPort (node:internal/errors:671:12)
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)`
+  const error = new TypeError(`fetch failed`)
+  // @ts-ignore
+  error.cause = cause
+  error.stack = `TypeError: fetch failed
+    at Object.fetch (node:internal/deps/undici/undici:11730:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async getJson (test:///test/debug-node/packages/node/src/parts/GetJson/GetJson.js:2:20)
+    at async getResponse (test:///test/lvce-editor/packages/extension-host-helper-process/node_modules/@lvce-editor/json-rpc/dist/index.js:343:9)
+    at async Module.handleJsonRpcMessage (test:///test/lvce-editor/packages/extension-host-helper-process/node_modules/@lvce-editor/json-rpc/dist/index.js:367:24)`
+  // @ts-ignore
+  fs.readFileSync.mockImplementation(() => {
+    return `export const getJson = async (url) => {
+  const response = await fetch(url, {
+    // mode: 'no-cors',
+    mode: 'no-cors',
+  })
+  if (!response.ok) {
+    throw new Error(response.statusText)
+  }
+  return response.json()
+}
+`
+  })
+  const prettyError = PrettyError.prepare(error)
+  expect(prettyError).toEqual({
+    message: 'fetch failed',
+    stack: `    at async getJson (test:///test/debug-node/packages/node/src/parts/GetJson/GetJson.js:2:20)
+    at async handleJsonRpcMessage (test:///test/lvce-editor/packages/extension-host-helper-process/node_modules/@lvce-editor/json-rpc/dist/index.js:367:24)`,
+    codeFrame: `  1 | export const getJson = async (url) => {
+> 2 |   const response = await fetch(url, {
+    |                    ^
+  3 |     // mode: 'no-cors',
+  4 |     mode: 'no-cors',
+  5 |   })`,
+    type: 'TypeError',
+  })
+})
