@@ -860,7 +860,7 @@ try {
   })
 })
 
-test.skip('prepare - extension activation error', async () => {
+test('prepare - extension activation error', async () => {
   const prefix = process.platform === 'win32' ? 'file:///C:' : 'file://'
   const mainJs = prefix + '/test/extensions/sample.error-on-activate/main.js'
   const extensionManagementJs =
@@ -873,11 +873,7 @@ test.skip('prepare - extension activation error', async () => {
   at enable (${extensionManagementJs}:80:27)
   at async process.handleMessage (${sharedProcessJs}:51:20)`
 
-  const error = new ExecutionError({
-    cause,
-    message:
-      'Failed to load extension "sample.error-on-activate-with-source-map"',
-  })
+  const error = cause
   // @ts-ignore
   fs.readFileSync.mockImplementation(() => {
     return `export const activate = () => {
@@ -887,8 +883,8 @@ test.skip('prepare - extension activation error', async () => {
   })
   const prettyError = PrettyError.prepare(error)
   expect(prettyError).toEqual({
-    message:
-      'Failed to load extension "sample.error-on-activate-with-source-map": oops',
+    message: 'oops',
+    type: 'Error',
     stack: `  at Module.activate (${mainJs}:2:9)
   at enable (${extensionManagementJs}:80:27)
   at async process.handleMessage (${sharedProcessJs}:51:20)`,
@@ -913,11 +909,7 @@ Error: oops
     at async Promise.all (index 0)
     at async enable (file:///test/ExtensionManagement/ExtensionManagement.js:71:14)
     at async process.handleMessage (file:///test/SharedProcess/SharedProcess.js:51:20)`
-  const error = new ExecutionError({
-    cause,
-    message:
-      'Failed to load extension "sample.error-on-activate-with-source-map"',
-  })
+  const error = cause
 
   // @ts-ignore
   fs.readFileSync.mockImplementation(() => {
@@ -928,8 +920,7 @@ Error: oops
   })
   const prettyError = PrettyError.prepare(error)
   expect(prettyError).toEqual({
-    message:
-      'Failed to load extension "sample.error-on-activate-with-source-map": oops',
+    message: 'oops',
     stack: `    at null.activate (/test/extensions/sample.error-on-activate-with-source-map/main.ts:2:9)
     at async Promise.all (index 0)
     at async enable (file:///test/ExtensionManagement/ExtensionManagement.js:71:14)
