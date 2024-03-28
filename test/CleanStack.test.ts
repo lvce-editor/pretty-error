@@ -1,4 +1,5 @@
 import * as CleanStack from '../src/parts/CleanStack/CleanStack.js'
+import { test, expect } from '@jest/globals'
 
 test('cleanStack - remove useless Promise.all', () => {
   const stack = `    at file:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
