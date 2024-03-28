@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals'
+import { expect, jest, test } from '@jest/globals'
 import { AssertionError } from '../src/parts/AssertionError/AssertionError.js'
 import * as ErrorCodes from '../src/parts/ErrorCodes/ErrorCodes.js'
 
