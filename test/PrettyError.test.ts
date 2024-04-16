@@ -962,3 +962,95 @@ test('prepare - error with internal websocket stack trace', () => {
     at handleMessage (${filePrefix}/test/lvce-editor/packages/extension-host/src/parts/SharedProcess/SharedProcess.js:83:44)
     at WebSocket.wrappedListener (${filePrefix}/test/lvce-editor/packages/extension-host/src/parts/Ipc/IpcWithWebSocket.js:59:13)`)
 })
+
+test('prepare - error with overload resolution', () => {
+  const error = new TypeError()
+  error.message = `Failed to execute 'postMessage' on 'MessagePort': Overload resolution failed.`
+  error.stack = `TypeError: Failed to execute 'postMessage' on 'MessagePort': Overload resolution failed.
+    at Object.sendAndTransfer (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:31:23)
+    at Module.invokeAndTransfer (/static/js/lvce-editor-json-rpc.js:339:7)
+    at Module.invokeAndTransfer (/packages/embeds-worker/src/parts/Rpc/Rpc.ts:13:20)
+    at createWebContentsView (/packages/embeds-worker/src/parts/ElectronWebContentsView/ElectronWebContentsView.ts:6:15)
+    at execute (/packages/embeds-worker/src/parts/Command/Command.ts:8:12)
+    at getResponse (/static/js/lvce-editor-json-rpc.js:293:115)
+    at Module.handleJsonRpcMessage (/static/js/lvce-editor-json-rpc.js:302:30)
+    at handleMessage (/packages/embeds-worker/src/parts/HandleIpc/HandleIpc.ts:14:33)
+    at MessagePort.wrappedListener (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:40:21)`
+  // @ts-ignore
+  fs.readFileSync.mockImplementation(() => {
+    return `
+import * as GetData from '../GetData/GetData.ts'
+import * as IpcChildWithModuleWorker from '../IpcChildWithModuleWorker/IpcChildWithModuleWorker.ts'
+import { IpcError } from '../IpcError/IpcError.ts'
+import * as WaitForFirstMessage from '../WaitForFirstMessage/WaitForFirstMessage.ts'
+
+export const listen = async () => {
+  const parentIpcRaw = await IpcChildWithModuleWorker.listen()
+  const parentIpc = IpcChildWithModuleWorker.wrap(parentIpcRaw)
+  const firstMessage = await WaitForFirstMessage.waitForFirstMessage(parentIpc)
+  if (firstMessage.method !== 'initialize') {
+    throw new IpcError('unexpected first message')
+  }
+  const type = firstMessage.params[0]
+  if (type === 'message-port') {
+    const port = firstMessage.params[1]
+    return port
+  }
+  return globalThis
+}
+
+export const wrap = (port) => {
+  return {
+    port,
+    /**
+     * @type {any}
+     */
+    wrappedListener: undefined,
+    send(message) {
+      this.port.postMessage(message)
+    },
+    sendAndTransfer(message, transferables) {
+      this.port.postMessage(message, transferables)
+    },
+    get onmessage() {
+      return this.wrappedListener
+    },
+    set onmessage(listener) {
+      if (listener) {
+        this.wrappedListener = (event) => {
+          const data = GetData.getData(event)
+          listener({ data, target: this })
+        }
+      } else {
+        this.wrappedListener = undefined
+      }
+      this.port.onmessage = this.wrappedListener
+    },
+  }
+}
+
+`
+  })
+  const prettyError = PrettyError.prepare(error)
+  expect(prettyError.type).toBe('TypeError')
+  expect(prettyError.message).toBe(
+    "Failed to execute 'postMessage' on 'MessagePort': Overload resolution failed.",
+  )
+  expect(prettyError.codeFrame).toBe(`  29 |     send(message) {
+  30 |       this.port.postMessage(message)
+> 31 |     },
+     |       ^
+  32 |     sendAndTransfer(message, transferables) {
+  33 |       this.port.postMessage(message, transferables)
+  34 |     },`)
+  expect(prettyError.stack)
+    .toBe(`    at Object.sendAndTransfer (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:31:23)
+    at invokeAndTransfer (/static/js/lvce-editor-json-rpc.js:339:7)
+    at invokeAndTransfer (/packages/embeds-worker/src/parts/Rpc/Rpc.ts:13:20)
+    at createWebContentsView (/packages/embeds-worker/src/parts/ElectronWebContentsView/ElectronWebContentsView.ts:6:15)
+    at execute (/packages/embeds-worker/src/parts/Command/Command.ts:8:12)
+    at getResponse (/static/js/lvce-editor-json-rpc.js:293:115)
+    at handleJsonRpcMessage (/static/js/lvce-editor-json-rpc.js:302:30)
+    at handleMessage (/packages/embeds-worker/src/parts/HandleIpc/HandleIpc.ts:14:33)
+    at MessagePort.wrappedListener (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:40:21)`)
+})
