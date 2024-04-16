@@ -978,57 +978,55 @@ test('prepare - error with overload resolution', () => {
     at MessagePort.wrappedListener (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:40:21)`
   // @ts-ignore
   fs.readFileSync.mockImplementation(() => {
-    return `
-import * as GetData from '../GetData/GetData.ts'
-import * as IpcChildWithModuleWorker from '../IpcChildWithModuleWorker/IpcChildWithModuleWorker.ts'
-import { IpcError } from '../IpcError/IpcError.ts'
-import * as WaitForFirstMessage from '../WaitForFirstMessage/WaitForFirstMessage.ts'
-
+    return `// @ts-nocheck
+import * as GetData from '../GetData/GetData.ts';
+import * as IpcChildWithModuleWorker from '../IpcChildWithModuleWorker/IpcChildWithModuleWorker.ts';
+import { IpcError } from '../IpcError/IpcError.ts';
+import * as WaitForFirstMessage from '../WaitForFirstMessage/WaitForFirstMessage.ts';
 export const listen = async () => {
-  const parentIpcRaw = await IpcChildWithModuleWorker.listen()
-  const parentIpc = IpcChildWithModuleWorker.wrap(parentIpcRaw)
-  const firstMessage = await WaitForFirstMessage.waitForFirstMessage(parentIpc)
-  if (firstMessage.method !== 'initialize') {
-    throw new IpcError('unexpected first message')
-  }
-  const type = firstMessage.params[0]
-  if (type === 'message-port') {
-    const port = firstMessage.params[1]
-    return port
-  }
-  return globalThis
-}
-
+    const parentIpcRaw = await IpcChildWithModuleWorker.listen();
+    const parentIpc = IpcChildWithModuleWorker.wrap(parentIpcRaw);
+    const firstMessage = await WaitForFirstMessage.waitForFirstMessage(parentIpc);
+    if (firstMessage.method !== 'initialize') {
+        throw new IpcError('unexpected first message');
+    }
+    const type = firstMessage.params[0];
+    if (type === 'message-port') {
+        const port = firstMessage.params[1];
+        return port;
+    }
+    return globalThis;
+};
 export const wrap = (port) => {
-  return {
-    port,
-    /**
-     * @type {any}
-     */
-    wrappedListener: undefined,
-    send(message) {
-      this.port.postMessage(message)
-    },
-    sendAndTransfer(message, transferables) {
-      this.port.postMessage(message, transferables)
-    },
-    get onmessage() {
-      return this.wrappedListener
-    },
-    set onmessage(listener) {
-      if (listener) {
-        this.wrappedListener = (event) => {
-          const data = GetData.getData(event)
-          listener({ data, target: this })
-        }
-      } else {
-        this.wrappedListener = undefined
-      }
-      this.port.onmessage = this.wrappedListener
-    },
-  }
-}
-
+    return {
+        port,
+        /**
+         * @type {any}
+         */
+        wrappedListener: undefined,
+        send(message) {
+            this.port.postMessage(message);
+        },
+        sendAndTransfer(message, transferables) {
+            this.port.postMessage(message, transferables);
+        },
+        get onmessage() {
+            return this.wrappedListener;
+        },
+        set onmessage(listener) {
+            if (listener) {
+                this.wrappedListener = (event) => {
+                    const data = GetData.getData(event);
+                    listener({ data, target: this });
+                };
+            }
+            else {
+                this.wrappedListener = undefined;
+            }
+            this.port.onmessage = this.wrappedListener;
+        },
+    };
+};
 `
   })
   const prettyError = PrettyError.prepare(error)
@@ -1036,13 +1034,13 @@ export const wrap = (port) => {
   expect(prettyError.message).toBe(
     "Failed to execute 'postMessage' on 'MessagePort': Overload resolution failed.",
   )
-  expect(prettyError.codeFrame).toBe(`  29 |     send(message) {
-  30 |       this.port.postMessage(message)
-> 31 |     },
-     |       ^
-  32 |     sendAndTransfer(message, transferables) {
-  33 |       this.port.postMessage(message, transferables)
-  34 |     },`)
+  expect(prettyError.codeFrame).toBe(`  29 |         },
+  30 |         sendAndTransfer(message, transferables) {
+> 31 |             this.port.postMessage(message, transferables);
+     |                       ^
+  32 |         },
+  33 |         get onmessage() {
+  34 |             return this.wrappedListener;`)
   expect(prettyError.stack)
     .toBe(`    at Object.sendAndTransfer (/packages/embeds-worker/src/parts/IpcChildWithModuleWorkerAndMessagePort/IpcChildWithModuleWorkerAndMessagePort.ts:31:23)
     at invokeAndTransfer (/static/js/lvce-editor-json-rpc.js:339:7)
