@@ -1151,15 +1151,17 @@ test(`prepare - DataCloneError - Failed to execute 'postMessage' on 'DedicatedWo
     `Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.`,
     'DataCloneError',
   )
-  error.stack = `ReferenceError: exports is not defined in ES module scope
-This file is being treated as an ES module because it has a '.js' file extension and '/test/packages/shared-process/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
-    at test:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:193:25)
-    at async Promise.all (index 0)
-    at async ESMLoader.import (node:internal/modules/esm/loader:530:24)
-    at async Module.create (test:///test/packages/shared-process/src/parts/IpcParent/IpcParent.js:4:18)
-    at async createPtyHost (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:52:19)
-    at async Module.create (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:79:23)'`
+  error.stack = `Error: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.
+  at IpcChildWithModuleWorker.sendAndTransfer (http://localhost:3000/static/js/lvce-editor-ipc.js:42:18)
+  at Module.invokeAndTransfer (http://localhost:3000/static/js/lvce-editor-json-rpc.js:441:7)
+  at Module.invokeAndTransfer (http://localhost:3000/packages/renderer-worker/src/parts/RendererProcess/RendererProcess.js:39:18)
+  at Module.transferToRendererProcess (http://localhost:3000/packages/renderer-worker/src/parts/Transferrable/Transferrable.js:7:25)
+  at Module.loadContent (http://localhost:3000/packages/renderer-worker/src/parts/ViewletWebView/ViewletWebView.ts:43:25)
+  at async Module.load (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:401:20)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletMain/ViewletMainOpenUri.js:90:20)
+  at async runFnWithSideEffect (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:71:18)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:104:5)
+  at async Module.handleJsonRpcMessage (http://localhost:3000/packages/renderer-worker/src/parts/HandleJsonRpcMessage/HandleJsonRpcMessage.js:9:24)`
   // @ts-ignore
   fs.readFileSync.mockImplementation(() => {
     return `const getData$1 = (event) => {
@@ -1236,19 +1238,26 @@ const splitLines = (lines) => {
   const prettyError = PrettyError.prepare(error)
   // TODO error message could be shorter
   expect(prettyError).toEqual({
-    message: `exports is not defined in ES module scope
-This file is being treated as an ES module because it has a '.js' file extension and '/test/packages/shared-process/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.`,
-    stack: `    at test:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
-    at async create (test:///test/packages/shared-process/src/parts/IpcParent/IpcParent.js:4:18)
-    at async createPtyHost (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:52:19)
-    at async create (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:79:23)'`,
-    codeFrame: `  3 | import * as GetFirstNodeWorkerEvent from '../GetFirstNodeWorkerEvent/GetFirstNodeWorkerEvent.js'
-  4 |
-> 5 | exports.create = async ({ path, argv, env, execArgv }) => {
-    | ^
-  6 |   Assert.string(path)
-  7 |   const worker = new Worker(path, {
-  8 |     argv,`,
-    type: 'ReferenceError',
+    code: 25,
+    message:
+      "Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.",
+    stack: `  at IpcChildWithModuleWorker.sendAndTransfer (http://localhost:3000/static/js/lvce-editor-ipc.js:42:18)
+  at Module.invokeAndTransfer (http://localhost:3000/static/js/lvce-editor-json-rpc.js:441:7)
+  at Module.invokeAndTransfer (http://localhost:3000/packages/renderer-worker/src/parts/RendererProcess/RendererProcess.js:39:18)
+  at Module.transferToRendererProcess (http://localhost:3000/packages/renderer-worker/src/parts/Transferrable/Transferrable.js:7:25)
+  at Module.loadContent (http://localhost:3000/packages/renderer-worker/src/parts/ViewletWebView/ViewletWebView.ts:43:25)
+  at async Module.load (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:401:20)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletMain/ViewletMainOpenUri.js:90:20)
+  at async runFnWithSideEffect (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:71:18)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:104:5)
+  at async Module.handleJsonRpcMessage (http://localhost:3000/packages/renderer-worker/src/parts/HandleJsonRpcMessage/HandleJsonRpcMessage.js:9:24)`,
+    codeFrame: `  40 |   }
+  41 |   sendAndTransfer(message, transfer) {
+> 42 |     this._rawIpc.postMessage(message, transfer);
+     |                  ^
+  43 |   }
+  44 |   dispose() {
+  45 |   }`,
+    type: 'DOMException',
   })
 })
