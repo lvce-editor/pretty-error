@@ -1145,3 +1145,110 @@ export const launchSharedProcess = async ({ method, env = {} }) => {
     at async hydrate (/test/packages/main-process/src/parts/App/App.js:102:3)
     at async main (/test/packages/main-process/src/parts/Main/Main.js:16:3)`)
 })
+
+test(`prepare - DataCloneError - Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port`, async () => {
+  const error = new DOMException(
+    `Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.`,
+    'DataCloneError',
+  )
+  error.stack = `ReferenceError: exports is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/test/packages/shared-process/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at test:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:193:25)
+    at async Promise.all (index 0)
+    at async ESMLoader.import (node:internal/modules/esm/loader:530:24)
+    at async Module.create (test:///test/packages/shared-process/src/parts/IpcParent/IpcParent.js:4:18)
+    at async createPtyHost (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:52:19)
+    at async Module.create (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:79:23)'`
+  // @ts-ignore
+  fs.readFileSync.mockImplementation(() => {
+    return `const getData$1 = (event) => {
+  return event.data;
+};
+const attachEvents = (that) => {
+  const handleMessage = (...args) => {
+    const data = that.getData(...args);
+    that.dispatchEvent(new MessageEvent("message", {
+      data
+    }));
+  };
+  that.onMessage(handleMessage);
+  const handleClose = (event) => {
+    that.dispatchEvent(new Event("close"));
+  };
+  that.onClose(handleClose);
+};
+class Ipc extends EventTarget {
+  constructor(rawIpc) {
+    super();
+    this._rawIpc = rawIpc;
+    attachEvents(this);
+  }
+}
+const readyMessage = "ready";
+const listen$4 = () => {
+  if (typeof WorkerGlobalScope === "undefined") {
+    throw new TypeError("module is not in web worker scope");
+  }
+  return globalThis;
+};
+const signal$3 = (global) => {
+  global.postMessage(readyMessage);
+};
+class IpcChildWithModuleWorker extends Ipc {
+  getData(event) {
+    return getData$1(event);
+  }
+  send(message) {
+    this._rawIpc.postMessage(message);
+  }
+  sendAndTransfer(message, transfer) {
+    this._rawIpc.postMessage(message, transfer);
+  }
+  dispose() {
+  }
+  onClose(callback) {
+  }
+  onMessage(callback) {
+    this._rawIpc.addEventListener("message", callback);
+  }
+}
+const wrap$6 = (global) => {
+  return new IpcChildWithModuleWorker(global);
+};
+const IpcChildWithModuleWorker$1 = {
+  __proto__: null,
+  listen: listen$4,
+  signal: signal$3,
+  wrap: wrap$6
+};
+const E_INCOMPATIBLE_NATIVE_MODULE = "E_INCOMPATIBLE_NATIVE_MODULE";
+const E_MODULES_NOT_SUPPORTED_IN_ELECTRON = "E_MODULES_NOT_SUPPORTED_IN_ELECTRON";
+const ERR_MODULE_NOT_FOUND = "ERR_MODULE_NOT_FOUND";
+const NewLine$1 = "\n";
+const joinLines = (lines) => {
+  return lines.join(NewLine$1);
+};
+const splitLines = (lines) => {
+  return lines.split(NewLine$1);
+};`
+  })
+  const prettyError = PrettyError.prepare(error)
+  // TODO error message could be shorter
+  expect(prettyError).toEqual({
+    message: `exports is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/test/packages/shared-process/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.`,
+    stack: `    at test:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
+    at async create (test:///test/packages/shared-process/src/parts/IpcParent/IpcParent.js:4:18)
+    at async createPtyHost (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:52:19)
+    at async create (test:///test/packages/shared-process/src/parts/Terminal/Terminal.js:79:23)'`,
+    codeFrame: `  3 | import * as GetFirstNodeWorkerEvent from '../GetFirstNodeWorkerEvent/GetFirstNodeWorkerEvent.js'
+  4 |
+> 5 | exports.create = async ({ path, argv, env, execArgv }) => {
+    | ^
+  6 |   Assert.string(path)
+  7 |   const worker = new Worker(path, {
+  8 |     argv,`,
+    type: 'ReferenceError',
+  })
+})
