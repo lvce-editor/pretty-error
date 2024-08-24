@@ -1145,3 +1145,119 @@ export const launchSharedProcess = async ({ method, env = {} }) => {
     at async hydrate (/test/packages/main-process/src/parts/App/App.js:102:3)
     at async main (/test/packages/main-process/src/parts/Main/Main.js:16:3)`)
 })
+
+test(`prepare - DataCloneError - Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port`, async () => {
+  const error = new DOMException(
+    `Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.`,
+    'DataCloneError',
+  )
+  error.stack = `Error: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.
+  at IpcChildWithModuleWorker.sendAndTransfer (http://localhost:3000/static/js/lvce-editor-ipc.js:42:18)
+  at Module.invokeAndTransfer (http://localhost:3000/static/js/lvce-editor-json-rpc.js:441:7)
+  at Module.invokeAndTransfer (http://localhost:3000/packages/renderer-worker/src/parts/RendererProcess/RendererProcess.js:39:18)
+  at Module.transferToRendererProcess (http://localhost:3000/packages/renderer-worker/src/parts/Transferrable/Transferrable.js:7:25)
+  at Module.loadContent (http://localhost:3000/packages/renderer-worker/src/parts/ViewletWebView/ViewletWebView.ts:43:25)
+  at async Module.load (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:401:20)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletMain/ViewletMainOpenUri.js:90:20)
+  at async runFnWithSideEffect (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:71:18)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:104:5)
+  at async Module.handleJsonRpcMessage (http://localhost:3000/packages/renderer-worker/src/parts/HandleJsonRpcMessage/HandleJsonRpcMessage.js:9:24)`
+  // @ts-ignore
+  fs.readFileSync.mockImplementation(() => {
+    return `const getData$1 = (event) => {
+  return event.data;
+};
+const attachEvents = (that) => {
+  const handleMessage = (...args) => {
+    const data = that.getData(...args);
+    that.dispatchEvent(new MessageEvent("message", {
+      data
+    }));
+  };
+  that.onMessage(handleMessage);
+  const handleClose = (event) => {
+    that.dispatchEvent(new Event("close"));
+  };
+  that.onClose(handleClose);
+};
+class Ipc extends EventTarget {
+  constructor(rawIpc) {
+    super();
+    this._rawIpc = rawIpc;
+    attachEvents(this);
+  }
+}
+const readyMessage = "ready";
+const listen$4 = () => {
+  if (typeof WorkerGlobalScope === "undefined") {
+    throw new TypeError("module is not in web worker scope");
+  }
+  return globalThis;
+};
+const signal$3 = (global) => {
+  global.postMessage(readyMessage);
+};
+class IpcChildWithModuleWorker extends Ipc {
+  getData(event) {
+    return getData$1(event);
+  }
+  send(message) {
+    this._rawIpc.postMessage(message);
+  }
+  sendAndTransfer(message, transfer) {
+    this._rawIpc.postMessage(message, transfer);
+  }
+  dispose() {
+  }
+  onClose(callback) {
+  }
+  onMessage(callback) {
+    this._rawIpc.addEventListener("message", callback);
+  }
+}
+const wrap$6 = (global) => {
+  return new IpcChildWithModuleWorker(global);
+};
+const IpcChildWithModuleWorker$1 = {
+  __proto__: null,
+  listen: listen$4,
+  signal: signal$3,
+  wrap: wrap$6
+};
+const E_INCOMPATIBLE_NATIVE_MODULE = "E_INCOMPATIBLE_NATIVE_MODULE";
+const E_MODULES_NOT_SUPPORTED_IN_ELECTRON = "E_MODULES_NOT_SUPPORTED_IN_ELECTRON";
+const ERR_MODULE_NOT_FOUND = "ERR_MODULE_NOT_FOUND";
+const NewLine$1 = "\n";
+const joinLines = (lines) => {
+  return lines.join(NewLine$1);
+};
+const splitLines = (lines) => {
+  return lines.split(NewLine$1);
+};`
+  })
+  const prettyError = PrettyError.prepare(error)
+  // TODO error message could be shorter
+  expect(prettyError).toEqual({
+    code: 25,
+    message:
+      "Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': Message port at index 1 is a duplicate of an earlier port.",
+    stack: `  at IpcChildWithModuleWorker.sendAndTransfer (http://localhost:3000/static/js/lvce-editor-ipc.js:42:18)
+  at Module.invokeAndTransfer (http://localhost:3000/static/js/lvce-editor-json-rpc.js:441:7)
+  at Module.invokeAndTransfer (http://localhost:3000/packages/renderer-worker/src/parts/RendererProcess/RendererProcess.js:39:18)
+  at Module.transferToRendererProcess (http://localhost:3000/packages/renderer-worker/src/parts/Transferrable/Transferrable.js:7:25)
+  at Module.loadContent (http://localhost:3000/packages/renderer-worker/src/parts/ViewletWebView/ViewletWebView.ts:43:25)
+  at async Module.load (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:401:20)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletMain/ViewletMainOpenUri.js:90:20)
+  at async runFnWithSideEffect (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:71:18)
+  at async openUri (http://localhost:3000/packages/renderer-worker/src/parts/ViewletManager/ViewletManager.js:104:5)
+  at async Module.handleJsonRpcMessage (http://localhost:3000/packages/renderer-worker/src/parts/HandleJsonRpcMessage/HandleJsonRpcMessage.js:9:24)`,
+    codeFrame: `  40 |   }
+  41 |   sendAndTransfer(message, transfer) {
+> 42 |     this._rawIpc.postMessage(message, transfer);
+     |                  ^
+  43 |   }
+  44 |   dispose() {
+  45 |   }`,
+    type: 'DOMException',
+  })
+})
