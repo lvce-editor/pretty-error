@@ -1,7 +1,7 @@
 // parsing error handling based on https://github.com/sindresorhus/parse-json/blob/main/index.js
 
-import { JsonParsingError } from '../JsonParsingError/JsonParsingError.ts'
 import * as Character from '../Character/Character.ts'
+import { JsonParsingError } from '../JsonParsingError/JsonParsingError.ts'
 
 export const parse = async (string: string, filePath: string) => {
   try {

@@ -1,6 +1,6 @@
+import * as ErrorCodes from '../ErrorCodes/ErrorCodes.ts'
 import * as JoinLines from '../JoinLines/JoinLines.ts'
 import * as SplitLines from '../SplitLines/SplitLines.ts'
-import * as ErrorCodes from '../ErrorCodes/ErrorCodes.ts'
 
 export class JsonParsingError extends Error {
   code: string
