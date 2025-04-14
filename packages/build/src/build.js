@@ -82,7 +82,7 @@ await writeJson(join(dist, 'package.json'), packageJson)
 await writeJson(join(dist, 'package.json'), packageJson)
 
 await cp(
-  join(root, 'packages', 'pretty-error', 'src', 'index.d.ts'),
+  join(root, 'packages', 'build', 'files', 'index.d.ts'),
   join(dist, 'dist', 'index.d.ts'),
   {
     recursive: true,
