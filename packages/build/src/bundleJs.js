@@ -4,18 +4,19 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { join } from 'path'
 import { rollup } from 'rollup'
 import { root } from './root.js'
+import commonjs from '@rollup/plugin-commonjs'
 
 /**
  * @type {import('rollup').RollupOptions}
  */
 const options = {
-  input: join(root, 'packages/file-search-worker/src/fileSearchWorkerMain.ts'),
+  input: join(root, 'packages/pretty-error/src/index.js'),
   preserveEntrySignatures: 'strict',
   treeshake: {
     propertyReadSideEffects: false,
   },
   output: {
-    file: join(root, '.tmp/dist/dist/fileSearchWorkerMain.js'),
+    file: join(root, '.tmp/dist/dist/index.js'),
     format: 'es',
     freeze: false,
     generatedCode: {
@@ -31,6 +32,7 @@ const options = {
       presets: [pluginTypeScript],
     }),
     nodeResolve(),
+    commonjs(),
   ],
 }
 

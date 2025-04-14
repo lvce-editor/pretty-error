@@ -56,7 +56,7 @@ await bundleJs()
 
 const version = await getVersion()
 
-const packageJson = await readJson(join(root, 'packages', 'file-search-worker', 'package.json'))
+const packageJson = await readJson(join(root, 'packages', 'pretty-error', 'package.json'))
 
 delete packageJson.scripts
 delete packageJson.devDependencies
@@ -66,9 +66,15 @@ delete packageJson.xo
 delete packageJson.directories
 delete packageJson.nodemonConfig
 packageJson.version = version
-packageJson.main = 'dist/fileSearchWorkerMain.js'
+packageJson.main = 'dist/index.js'
 
 await writeJson(join(dist, 'package.json'), packageJson)
+
+await writeJson(join(dist, 'package.json'), packageJson)
+
+await cp(join(root, 'packages', 'pretty-error', 'src', 'index.d.ts'), join(dist, 'dist', 'index.d.ts'), {
+  recursive: true,
+})
 
 await cp(join(root, 'README.md'), join(dist, 'README.md'))
 await cp(join(root, 'LICENSE'), join(dist, 'LICENSE'))
