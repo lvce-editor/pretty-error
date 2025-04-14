@@ -24,7 +24,7 @@ const options = {
       objectShorthand: true,
     },
   },
-  external: ['ws', 'electron'],
+  external: ['ws', 'electron', '@babel/code-frame', 'lines-and-columns'],
   plugins: [
     babel({
       babelHelpers: 'bundled',
@@ -32,6 +32,7 @@ const options = {
       presets: [pluginTypeScript],
     }),
     nodeResolve(),
+    // @ts-ignore
     commonjs(),
   ],
 }
