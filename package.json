@@ -2,28 +2,28 @@
   "name": "@lvce-editor/pretty-error-monorepo",
   "version": "0.0.0-dev",
   "description": "",
+  "license": "MIT",
+  "author": "Lvce Editor",
   "type": "module",
   "scripts": {
+    "#lint": "eslint .",
     "build": "node packages/build/src/build.js",
     "format": "prettier --write .",
     "lint": "echo ok",
-    "#lint": "eslint .",
     "postinstall": "lerna bootstrap --ci",
     "test": "lerna run test",
     "type-check": "tsc -b"
   },
-  "author": "Lvce Editor",
-  "license": "MIT",
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
   "devDependencies": {
-    "prettier": "^3.5.3",
     "@lerna/legacy-package-management": "^8.2.2",
     "@lvce-editor/eslint-config": "^1.38.0",
     "eslint": "9.24.0",
     "lerna": "^8.2.2",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true
   }
 }
