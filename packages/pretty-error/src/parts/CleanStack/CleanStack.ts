@@ -1,4 +1,4 @@
-import * as SplitLines from '../SplitLines/SplitLines.js'
+import * as SplitLines from '../SplitLines/SplitLines.ts'
 
 const RE_AT = /^\s+at/
 const RE_AT_PROMISE_INDEX = /^\s*at async Promise.all \(index \d+\)$/
@@ -6,18 +6,23 @@ const RE_OBJECT_AS = /^\s*at (async )?Object\.\w+ \[as ([\w\.]+)\]/
 const RE_GET_RESPONSE = /^\s*at async getResponse/
 const RE_WEBSOCKET_HANDLE_MESSAGE = /^\s*at async WebSocket.handleMessage/
 const RE_EXECUTE_COMMAND_ASYNC = /^\s*at executeCommandAsync/
-const RE_HANDLE_OTHER_MESSAGES_FROM_MESSAGE_PORT = /^\s*at async MessagePort\.handleOtherMessagesFromMessagePort/
+const RE_HANDLE_OTHER_MESSAGES_FROM_MESSAGE_PORT =
+  /^\s*at async MessagePort\.handleOtherMessagesFromMessagePort/
 const RE_ASSERT = /^\s*at .*\/Assert\.js/
 
-const isInternalLine = (line) => {
-  return line.includes('node:') || RE_AT_PROMISE_INDEX.test(line) || line.includes('node_modules/ws')
+const isInternalLine = (line: string) => {
+  return (
+    line.includes('node:') ||
+    RE_AT_PROMISE_INDEX.test(line) ||
+    line.includes('node_modules/ws')
+  )
 }
 
-const isRelevantLine = (line) => {
+const isRelevantLine = (line: string) => {
   return !isInternalLine(line)
 }
 
-const isApplicationUsefulLine = (line, index) => {
+const isApplicationUsefulLine = (line: string, index: number) => {
   if (index === 0) {
     if (RE_ASSERT.test(line)) {
       return false
@@ -39,11 +44,11 @@ const isApplicationUsefulLine = (line, index) => {
   return true
 }
 
-const isNormalStackLine = (line) => {
+const isNormalStackLine = (line: string) => {
   return RE_AT.test(line) && !RE_AT_PROMISE_INDEX.test(line)
 }
 
-const cleanLine = (line) => {
+const cleanLine = (line: string) => {
   if (line.startsWith('    at exports.')) {
     return '    at ' + line.slice('    at exports.'.length)
   }
@@ -67,7 +72,7 @@ const cleanLine = (line) => {
   return line
 }
 
-const getDetails = (lines) => {
+const getDetails = (lines: readonly string[]) => {
   const index = lines.findIndex(isNormalStackLine)
   return {
     custom: lines.slice(0, index),
@@ -77,7 +82,7 @@ const getDetails = (lines) => {
 
 const RE_PATH_1 = /^\/(.*)(\d+)$/
 
-const mergeCustom = (custom, relevantStack) => {
+const mergeCustom = (custom: any, relevantStack: any) => {
   if (custom.length === 0) {
     return relevantStack
   }
@@ -88,10 +93,12 @@ const mergeCustom = (custom, relevantStack) => {
   return relevantStack
 }
 
-export const cleanStack = (stack) => {
+export const cleanStack = (stack: string) => {
   const lines = SplitLines.splitLines(stack)
   const { custom, actualStack } = getDetails(lines)
-  const relevantStack = actualStack.filter(isRelevantLine).filter(isApplicationUsefulLine)
+  const relevantStack = actualStack
+    .filter(isRelevantLine)
+    .filter(isApplicationUsefulLine)
   const merged = mergeCustom(custom, relevantStack)
   return merged
 }

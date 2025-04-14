@@ -1,13 +1,13 @@
 import { codeFrameColumns } from '@babel/code-frame'
 import { readFileSync } from 'node:fs'
-import * as EncodingType from '../EncodingType/EncodingType.js'
-import * as JoinLines from '../JoinLines/JoinLines.js'
-import * as SplitLines from '../SplitLines/SplitLines.js'
+import * as EncodingType from '../EncodingType/EncodingType.ts'
+import * as JoinLines from '../JoinLines/JoinLines.ts'
+import * as SplitLines from '../SplitLines/SplitLines.ts'
 
 const RE_MODULE_NOT_FOUND_STACK =
   /Cannot find package '([^']+)' imported from (.+)$/
 
-export const prepareModuleNotFoundError = (error) => {
+export const prepareModuleNotFoundError = (error: any) => {
   const { message } = error
   const match = message.match(RE_MODULE_NOT_FOUND_STACK)
   if (!match) {

@@ -11,7 +11,11 @@ const emptyError = {
 
 const RE_POSITION = /in JSON at position (\d+)/
 
-export const getErrorPropsFromError = (error, string, filePath) => {
+export const getErrorPropsFromError = (
+  error: any,
+  string: string,
+  filePath: string,
+) => {
   const indexMatch = error.message.match(RE_POSITION)
   if (indexMatch && indexMatch.length > 0) {
     const lines = new LinesAndColumns(string)
@@ -20,7 +24,11 @@ export const getErrorPropsFromError = (error, string, filePath) => {
     if (location) {
       const line = location.line + 1
       const column = location.column + 1
-      const codeFrame = codeFrameColumns(string, { start: { line, column } }, { highlightCode: false })
+      const codeFrame = codeFrameColumns(
+        string,
+        { start: { line, column } },
+        { highlightCode: false },
+      )
       return {
         codeFrame,
         message: 'Json Parsing Error',
@@ -41,7 +49,11 @@ export const getErrorPropsFromError = (error, string, filePath) => {
     const index = string.length - 1
     const location = lines.locationForIndex(index)
     if (location) {
-      const codeFrame = codeFrameColumns(string, { start: { line: location.line + 1, column: location.column + 1 } }, { highlightCode: false })
+      const codeFrame = codeFrameColumns(
+        string,
+        { start: { line: location.line + 1, column: location.column + 1 } },
+        { highlightCode: false },
+      )
       return {
         codeFrame,
         message: 'Json Parsing Error',
@@ -56,7 +68,7 @@ export const getErrorPropsFromError = (error, string, filePath) => {
   }
 }
 
-export const getErrorProps = (string, filePath) => {
+export const getErrorProps = (string: string, filePath: string) => {
   try {
     JSON.parse(string)
     return emptyError
