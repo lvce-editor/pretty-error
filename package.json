@@ -1,5 +1,5 @@
 {
-  "name": "@lvce-editor/pretty-error",
+  "name": "@lvce-editor/pretty-error-monorepo",
   "version": "0.0.0-dev",
   "description": "Create user friendly error messages and code frames for errors",
   "main": "src/index.js",
