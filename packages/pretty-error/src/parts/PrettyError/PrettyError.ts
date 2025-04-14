@@ -1,16 +1,16 @@
 import { codeFrameColumns } from '@babel/code-frame'
 import { LinesAndColumns } from 'lines-and-columns'
 import { readFileSync } from 'node:fs'
-import * as CleanStack from '../CleanStack/CleanStack.js'
-import * as EncodingType from '../EncodingType/EncodingType.js'
-import * as ErrorCodes from '../ErrorCodes/ErrorCodes.js'
-import * as GetActualPath from '../GetActualPath/GetActualPath.js'
-import * as JoinLines from '../JoinLines/JoinLines.js'
-import * as Json from '../Json/Json.js'
-import * as Logger from '../Logger/Logger.js'
-import * as PrepareModuleNotFoundError from '../PrepareModuleNotFoundError/PrepareModuleNotFoundError.js'
+import * as CleanStack from '../CleanStack/CleanStack.ts'
+import * as EncodingType from '../EncodingType/EncodingType.ts'
+import * as ErrorCodes from '../ErrorCodes/ErrorCodes.ts'
+import * as GetActualPath from '../GetActualPath/GetActualPath.ts'
+import * as JoinLines from '../JoinLines/JoinLines.ts'
+import * as Json from '../Json/Json.ts'
+import * as Logger from '../Logger/Logger.ts'
+import * as PrepareModuleNotFoundError from '../PrepareModuleNotFoundError/PrepareModuleNotFoundError.ts'
 
-export const prepare = (error) => {
+export const prepare = (error: any) => {
   try {
     if (error && error.code === ErrorCodes.ERR_MODULE_NOT_FOUND) {
       return PrepareModuleNotFoundError.prepareModuleNotFoundError(error)
@@ -59,11 +59,11 @@ export const prepare = (error) => {
   }
 }
 
-const fixBackslashes = (string) => {
+const fixBackslashes = (string: string): string => {
   return string.replaceAll('\\\\', '\\')
 }
 
-export const prepareJsonError = (json, property, message) => {
+export const prepareJsonError = (json: any, property: any, message: any) => {
   const string = fixBackslashes(Json.stringify(json))
   const stringifiedPropertyName = `"${property}"`
   const index = string.indexOf(stringifiedPropertyName) // TODO this could be wrong in some cases, find a better way
@@ -80,6 +80,7 @@ export const prepareJsonError = (json, property, message) => {
       // @ts-ignore
       start: { line: location.line + 1, column: location.column + 1 },
     })
+    // @ts-ignore
     jsonError.codeFrame = codeFrame
   }
   // jsonError.stack = `${bottomMessage}\n    at ${filePath}`

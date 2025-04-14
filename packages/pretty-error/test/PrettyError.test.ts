@@ -1,6 +1,6 @@
 import { expect, jest, test } from '@jest/globals'
-import { AssertionError } from '../src/parts/AssertionError/AssertionError.js'
-import * as ErrorCodes from '../src/parts/ErrorCodes/ErrorCodes.js'
+import { AssertionError } from '../src/parts/AssertionError/AssertionError.ts'
+import * as ErrorCodes from '../src/parts/ErrorCodes/ErrorCodes.ts'
 
 jest.unstable_mockModule('node:fs', () => ({
   readFileSync: jest.fn(() => {
@@ -8,19 +8,19 @@ jest.unstable_mockModule('node:fs', () => ({
   }),
 }))
 
-jest.unstable_mockModule('../src/parts/Logger/Logger.js', () => ({
+jest.unstable_mockModule('../src/parts/Logger/Logger.ts', () => ({
   warn: jest.fn(() => {}),
 }))
 
 class VError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message)
     this.name = 'VError'
   }
 }
 
 const fs = await import('node:fs')
-const PrettyError = await import('../src/parts/PrettyError/PrettyError.js')
+const PrettyError = await import('../src/parts/PrettyError/PrettyError.ts')
 
 test('prepare - module not found error', async () => {
   const error = new Error()

@@ -10,7 +10,7 @@ import commonjs from '@rollup/plugin-commonjs'
  * @type {import('rollup').RollupOptions}
  */
 const options = {
-  input: join(root, 'packages/pretty-error/src/index.js'),
+  input: join(root, 'packages/pretty-error/src/index.ts'),
   preserveEntrySignatures: 'strict',
   treeshake: {
     propertyReadSideEffects: false,

@@ -1,4 +1,4 @@
-import * as CleanStack from '../src/parts/CleanStack/CleanStack.js'
+import * as CleanStack from '../src/parts/CleanStack/CleanStack.ts'
 import { test, expect } from '@jest/globals'
 
 test('cleanStack - remove useless Promise.all', () => {
