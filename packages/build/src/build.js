@@ -76,6 +76,7 @@ delete packageJson.directories
 delete packageJson.nodemonConfig
 packageJson.version = version
 packageJson.main = 'dist/index.js'
+packageJson.types = 'dist/index.d.js'
 
 await writeJson(join(dist, 'package.json'), packageJson)
 
