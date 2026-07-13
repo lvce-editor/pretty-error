@@ -10,6 +10,12 @@ export default [
     ],
   },
   {
+    rules: {
+      'package-json/sort-collections': 'off',
+      'package-json/valid-description': 'off',
+    },
+  },
+  {
     files: ['**/*.ts'],
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
@@ -19,7 +25,14 @@ export default [
       'unicorn/error-message': 'off',
       'jest/no-disabled-tests': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@cspell/spellchecker': 'off',
+      'jest/no-restricted-jest-methods': 'off',
       'no-console': 'off',
+      'perfectionist/sort-objects': 'off',
+      'sonarjs/prefer-single-boolean-return': 'off',
+      'sonarjs/super-linear-regex': 'off',
+      'unicorn/no-error-property-assignment': 'off',
+      'unicorn/prefer-boolean-return': 'off',
     },
   },
 ]

@@ -10,8 +10,8 @@
     "build": "node packages/build/src/build.js",
     "format": "prettier --write .",
     "lint": "echo ok",
-    "postinstall": "lerna bootstrap --ci",
-    "test": "lerna run test",
+    "postinstall": "npm ci --prefix packages/build --ignore-scripts && npm ci --prefix packages/memory --ignore-scripts && npm ci --prefix packages/pretty-error --ignore-scripts",
+    "test": "npm test --prefix packages/pretty-error",
     "type-check": "tsc -b"
   },
   "prettier": {
@@ -20,9 +20,9 @@
   },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.2.4",
-    "@lvce-editor/eslint-config": "^1.56.0",
-    "eslint": "9.32.0",
-    "lerna": "^8.2.3",
+    "@lvce-editor/eslint-config": "^16.3.0",
+    "eslint": "^10.7.0",
+    "lerna": "^8.2.4",
     "prettier": "^3.6.2",
     "typescript": "^6.0.0"
   }
