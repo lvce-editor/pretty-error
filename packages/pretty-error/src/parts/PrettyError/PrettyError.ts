@@ -46,11 +46,18 @@ export const prepare = (error: any) => {
       }
     }
     const relevantStack = JoinLines.joinLines(lines)
+    const constructorName = error?.constructor?.name
+    const type =
+      constructorName === 'DOMException'
+        ? constructorName
+        : error?.name && error.name !== 'Error'
+          ? error.name
+          : constructorName || 'Error'
     return {
       message,
       stack: relevantStack,
       codeFrame,
-      type: error.constructor.name,
+      type,
       code: error.code,
     }
   } catch (otherError) {
