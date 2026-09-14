@@ -7,6 +7,10 @@
     "error"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lvce-editor/pretty-error"
+  },
   "author": "Lvce Editor",
   "type": "module",
   "main": "src/index.js",
