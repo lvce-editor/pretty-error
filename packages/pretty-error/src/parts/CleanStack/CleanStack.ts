@@ -9,6 +9,7 @@ const RE_EXECUTE_COMMAND_ASYNC = /^\s*at executeCommandAsync/
 const RE_HANDLE_OTHER_MESSAGES_FROM_MESSAGE_PORT =
   /^\s*at async MessagePort\.handleOtherMessagesFromMessagePort/
 const RE_ASSERT = /^\s*at .*\/Assert\.js/
+const RE_FIREFOX_FRAME = /^.*@.*:\d+:\d+$/
 
 const isInternalLine = (line: string) => {
   return (
@@ -45,10 +46,19 @@ const isApplicationUsefulLine = (line: string, index: number) => {
 }
 
 const isNormalStackLine = (line: string) => {
-  return RE_AT.test(line) && !RE_AT_PROMISE_INDEX.test(line)
+  return (
+    (RE_AT.test(line) && !RE_AT_PROMISE_INDEX.test(line)) ||
+    RE_FIREFOX_FRAME.test(line)
+  )
 }
 
 const cleanLine = (line: string) => {
+  if (RE_FIREFOX_FRAME.test(line)) {
+    const separatorIndex = line.indexOf('@')
+    const functionName = line.slice(0, separatorIndex)
+    const frame = line.slice(separatorIndex + 1)
+    return functionName ? `  at ${functionName} (${frame})` : `  at (${frame})`
+  }
   if (line.startsWith('    at exports.')) {
     return '    at ' + line.slice('    at exports.'.length)
   }

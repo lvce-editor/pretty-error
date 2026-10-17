@@ -1,6 +1,14 @@
 import { test, expect } from '@jest/globals'
 import * as CleanStack from '../src/parts/CleanStack/CleanStack.ts'
 
+test('cleanStack - formats Firefox frames', () => {
+  const stack = `TypeError: failed\nfn@http://localhost/app.js:4:27\n@http://localhost/app.js:8:2`
+  expect(CleanStack.cleanStack(stack)).toEqual([
+    '  at fn (http://localhost/app.js:4:27)',
+    '  at (http://localhost/app.js:8:2)',
+  ])
+})
+
 test('cleanStack - remove useless Promise.all', () => {
   const stack = `    at file:///test/packages/shared-process/src/parts/IpcParentWithNodeWorker/IpcParentWithNodeWorker.js:5:1
     at async Promise.all (index 0)
