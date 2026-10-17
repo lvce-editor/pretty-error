@@ -9,7 +9,7 @@ const RE_EXECUTE_COMMAND_ASYNC = /^\s*at executeCommandAsync/
 const RE_HANDLE_OTHER_MESSAGES_FROM_MESSAGE_PORT =
   /^\s*at async MessagePort\.handleOtherMessagesFromMessagePort/
 const RE_ASSERT = /^\s*at .*\/Assert\.js/
-const RE_FIREFOX_FRAME = /^(.*?)@(.*):(\d+):(\d+)$/
+const RE_FIREFOX_FRAME = /^.*@.*:\d+:\d+$/
 
 const isInternalLine = (line: string) => {
   return (
@@ -53,10 +53,10 @@ const isNormalStackLine = (line: string) => {
 }
 
 const cleanLine = (line: string) => {
-  const firefoxMatch = line.match(RE_FIREFOX_FRAME)
-  if (firefoxMatch) {
-    const [, functionName, url, lineNumber, columnNumber] = firefoxMatch
-    const frame = `${url}:${lineNumber}:${columnNumber}`
+  if (RE_FIREFOX_FRAME.test(line)) {
+    const separatorIndex = line.indexOf('@')
+    const functionName = line.slice(0, separatorIndex)
+    const frame = line.slice(separatorIndex + 1)
     return functionName ? `  at ${functionName} (${frame})` : `  at (${frame})`
   }
   if (line.startsWith('    at exports.')) {
